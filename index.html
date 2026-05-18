@@ -792,49 +792,59 @@ function loadVoices() {
   const select = document.getElementById("voiceSelect");
   select.innerHTML = "";
 
-  let defaultIndex = -1;
+  const ua=navigator.userAgent.toLowerCase();
+  const isAndroid=ua.includes("android");
+  const isWindows=ua.includes("windows");
 
-  voices.forEach((v, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = v.name + " (" + v.lang + ")";
+  let preferred=-1;
+
+  const auto=document.createElement("option");
+  auto.value="auto";
+  auto.textContent="Best Available Voice";
+  select.appendChild(auto);
+
+  voices.forEach((v,i)=>{
+    const opt=document.createElement("option");
+    opt.value=String(i);
+    opt.textContent=v.name+" ("+v.lang+")";
     select.appendChild(opt);
 
-    // exact preference order
-    if (
-      v.name === "Google UK English Female"
-    ) {
-      defaultIndex = i;
+    const name=v.name.toLowerCase();
+    const lang=(v.lang||"").toLowerCase();
+
+    if(isWindows && preferred===-1){
+      if(
+         name.includes("microsoft") &&
+         name.includes("female")
+      ){
+        preferred=i;
+      }
+    }
+
+    if(isAndroid && preferred===-1){
+      if(
+         name.includes("google") ||
+         name.includes("samsung") ||
+         lang==="en-gb"
+      ){
+         preferred=i;
+      }
     }
   });
 
-  // fallback 1: any female en-GB voice
-  if(defaultIndex===-1){
-      voices.forEach((v,i)=>{
-          const n=v.name.toLowerCase();
-          if(v.lang==="en-GB" && n.includes("female")){
-              defaultIndex=i;
-          }
-      });
+  select.value=(preferred!==-1)?String(preferred):"auto";
+
+  const status=document.getElementById("audioStatus");
+  if(status){
+      if(isWindows){
+          status.textContent="Windows voice detected";
+      } else if(isAndroid){
+          status.textContent="Android/Samsung voice detected";
+      } else {
+          status.textContent="Using best available voice";
+      }
   }
-
-  // fallback 2: any UK voice
-  if(defaultIndex===-1){
-      voices.forEach((v,i)=>{
-          if(v.lang==="en-GB"){
-              defaultIndex=i;
-          }
-      });
-  }
-
-  // fallback 3: first voice
-  if(defaultIndex===-1) defaultIndex=0;
-
-  select.value=String(defaultIndex);
-
-  console.log("Default voice:",voices[defaultIndex]?.name);
 }
-
 
 function unlockAudio() {
   audioReady = true;
@@ -863,13 +873,14 @@ function speak(text, callback) {
   window.speechSynthesis.cancel();
 
   const u = new SpeechSynthesisUtterance(text);
-  const selected = Number(document.getElementById("voiceSelect").value);
+  const selectedValue=document.getElementById("voiceSelect").value;
 
-  if (voices[selected]) {
-    u.voice = voices[selected];
-    u.lang = voices[selected].lang || "en-GB";
-  } else {
-    u.lang = "en-GB";
+  if(selectedValue!=="auto"){
+      const selected=Number(selectedValue);
+      if(voices[selected]){
+          u.voice=voices[selected];
+          u.lang=voices[selected].lang||"en-GB";
+      }
   }
 
   u.rate = 0.92;
@@ -908,6 +919,12 @@ window.addEventListener("load", () => {
   setTimeout(loadVoices, 500);
   setTimeout(loadVoices, 1200);
   if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = loadVoices;
+
+  document.getElementById("voiceSelect").addEventListener("change", () => {
+    const select = document.getElementById("voiceSelect");
+    const status = document.getElementById("audioStatus");
+    if (status) status.textContent = "Voice: " + select.options[select.selectedIndex].textContent;
+  });
 });
 </script>
 </body>
