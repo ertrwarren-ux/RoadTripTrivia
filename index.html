@@ -413,6 +413,7 @@
           <div class="voice-row">
             <select id="voiceSelect"></select>
             <button class="small-btn" onclick="forceLoadVoices()">Load Voices</button>
+            <button class="small-btn" onclick="testAudio()">Test Audio</button>
           </div>
         </div>
       </div>
@@ -421,6 +422,9 @@
         Driver safety: the driver should listen only. A passenger should tap controls.
       </div>
       <div class="audio-status" id="audioStatus">Tap Start once to turn on audio.</div>
+      <div class="audio-help" id="audioHelp">
+        <strong>Audio note:</strong> If this page is inside a Google Sites embed on Android, speech may be blocked. Open the HTML page directly in Chrome, or use the GitHub Pages link instead of the embedded frame.
+      </div>
     </div>
 
   </div>
@@ -788,13 +792,51 @@ function resumeLastTrip() {
   }
 }
 
-function loadVoices(showStatus = false) {
-  if (!("speechSynthesis" in window)) return;
 
-  voices = window.speechSynthesis.getVoices();
+function getSpeechEngine() {
+  const synth = window.speechSynthesis || null;
+  const Utterance = window.SpeechSynthesisUtterance || window.webkitSpeechSynthesisUtterance || null;
+  return { synth, Utterance };
+}
+
+function checkSpeechSupport(showMessage = false) {
+  const status = document.getElementById("audioStatus");
+  const help = document.getElementById("audioHelp");
+  const engine = getSpeechEngine();
+
+  if (!engine.synth || !engine.Utterance) {
+    if (showMessage && status) {
+      status.textContent = "Speech is unavailable in this page view. Try opening the HTML page directly in Chrome.";
+    }
+    if (showMessage && help) help.style.display = "block";
+    return false;
+  }
+
+  if (help) help.style.display = "none";
+  if (showMessage && status) status.textContent = "Speech engine found. Tap Test Audio or Start.";
+  return true;
+}
+
+function loadVoices(showStatus = false) {
+  const engine = getSpeechEngine();
   const select = document.getElementById("voiceSelect");
   if (!select) return;
 
+  if (!engine.synth) {
+    select.innerHTML = "";
+    const opt = document.createElement("option");
+    opt.value = "auto";
+    opt.textContent = "Best Available Voice";
+    select.appendChild(opt);
+
+    const status = document.getElementById("audioStatus");
+    if (showStatus && status) {
+      status.textContent = "Voice list unavailable in this page view.";
+    }
+    return;
+  }
+
+  voices = engine.synth.getVoices ? engine.synth.getVoices() : [];
   const previousValue = select.value;
   select.innerHTML = "";
 
@@ -842,12 +884,13 @@ function loadVoices(showStatus = false) {
     if (voices.length) {
       status.textContent = "Voices loaded: " + voices.length + ". Selected: " + select.options[select.selectedIndex].textContent;
     } else {
-      status.textContent = "No voice list yet. Tap Load Voices or Start again.";
+      status.textContent = "No separate voice list found. Best Available Voice may still speak.";
     }
   }
 }
 
 function forceLoadVoices() {
+  checkSpeechSupport(true);
   unlockAudio();
   loadVoices(true);
   setTimeout(() => loadVoices(true), 250);
@@ -855,44 +898,58 @@ function forceLoadVoices() {
   setTimeout(() => loadVoices(true), 1500);
 }
 
+function testAudio() {
+  unlockAudio();
+  speak("Audio test. Road Trip Trivia is ready.");
+}
+
 function unlockAudio() {
+  const engine = getSpeechEngine();
+  if (!engine.synth) {
+    checkSpeechSupport(true);
+    return;
+  }
+
   audioReady = true;
   const status = document.getElementById("audioStatus");
   if (status) status.textContent = "Audio ready.";
 
-  if ("speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-    const freshVoices = window.speechSynthesis.getVoices();
-    if (freshVoices && freshVoices.length) {
-      voices = freshVoices;
-    }
-    setTimeout(() => loadVoices(false), 100);
-    setTimeout(() => loadVoices(false), 500);
-    setTimeout(() => loadVoices(false), 1200);
+  engine.synth.cancel();
+  const freshVoices = engine.synth.getVoices ? engine.synth.getVoices() : [];
+  if (freshVoices && freshVoices.length) {
+    voices = freshVoices;
   }
+
+  setTimeout(() => loadVoices(false), 100);
+  setTimeout(() => loadVoices(false), 500);
+  setTimeout(() => loadVoices(false), 1200);
 }
 
 function speak(text, callback) {
-  if (!("speechSynthesis" in window)) {
-    const status = document.getElementById("audioStatus");
-    if (status) status.textContent = "Speech is not supported in this browser.";
+  const engine = getSpeechEngine();
+
+  if (!engine.synth || !engine.Utterance) {
+    checkSpeechSupport(true);
     if (callback) callback();
     return;
   }
 
   if (!audioReady) unlockAudio();
 
-  window.speechSynthesis.cancel();
+  engine.synth.cancel();
 
-  const u = new SpeechSynthesisUtterance(text);
-  const selectedValue=document.getElementById("voiceSelect").value;
+  const u = new engine.Utterance(text);
+  const select = document.getElementById("voiceSelect");
+  const selectedValue = select ? select.value : "auto";
 
-  if(selectedValue!=="auto"){
-      const selected=Number(selectedValue);
-      if(voices[selected]){
-          u.voice=voices[selected];
-          u.lang=voices[selected].lang||"en-GB";
-      }
+  if (selectedValue !== "auto") {
+    const selected = Number(selectedValue);
+    if (voices[selected]) {
+      u.voice = voices[selected];
+      u.lang = voices[selected].lang || "en-US";
+    }
+  } else {
+    u.lang = "en-US";
   }
 
   u.rate = 0.92;
@@ -910,23 +967,25 @@ function speak(text, callback) {
     if (callback) callback();
   };
 
-  u.onerror = () => {
+  u.onerror = (event) => {
     const status = document.getElementById("audioStatus");
-    if (status) status.textContent = "Audio blocked. Tap Start / Repeat Question again.";
+    if (status) status.textContent = "Audio error: " + (event.error || "blocked") + ". Tap Test Audio or Start again.";
     if (callback) callback();
   };
 
   setTimeout(() => {
-    window.speechSynthesis.speak(u);
+    engine.synth.speak(u);
   }, 80);
 }
 
 function cancelSpeech() {
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  const engine = getSpeechEngine();
+  if (engine.synth) engine.synth.cancel();
 }
 
 window.addEventListener("load", () => {
   document.getElementById("topicLine").textContent = "Topic: " + triviaDeck.title;
+  checkSpeechSupport(false);
   loadVoices(false);
   setTimeout(() => loadVoices(false), 500);
   setTimeout(() => loadVoices(false), 1200);
