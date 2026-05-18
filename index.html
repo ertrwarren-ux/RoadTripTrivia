@@ -745,7 +745,7 @@ function toggleVoiceCommands() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
   if (!SpeechRecognition) {
-    speak("Voice commands are not supported in this browser. Try Chrome on Android.");
+    speak("Voice commands are not supported in this browser. Try Chrome on a PC or Android device.");
     return;
   }
 
@@ -768,7 +768,25 @@ function toggleVoiceCommands() {
   };
 
   recognition.onerror = function(event) {
-    document.getElementById("countdownText").textContent = "Voice command error. Tap Voice Commands to restart.";
+    const err = event.error || "unknown";
+    let help = "Voice error: " + err + ". ";
+
+    if (err === "not-allowed" || err === "service-not-allowed") {
+      help += "Microphone permission is blocked. In Chrome, click the lock icon, open Site settings, and allow Microphone.";
+    } else if (err === "no-speech") {
+      help += "No speech was detected. Try again and speak clearly after turning Voice Commands on.";
+    } else if (err === "audio-capture") {
+      help += "No microphone was found. Check Windows microphone settings and Chrome microphone permission.";
+    } else if (err === "network") {
+      help += "Chrome speech recognition service could not connect. Try direct GitHub Pages, not Google Sites embed.";
+    } else if (err === "aborted") {
+      help += "Listening was stopped. Tap Voice Commands again.";
+    } else {
+      help += "Try Chrome, direct GitHub Pages, and allow microphone permission.";
+    }
+
+    document.getElementById("countdownText").textContent = help;
+    console.log("Speech recognition error:", err, event);
   };
 
   recognition.onend = function() {
@@ -781,7 +799,7 @@ function toggleVoiceCommands() {
   try {
     recognition.start();
     document.getElementById("countdownText").textContent = "Voice commands on. Say start, repeat, answer, next, pause, home, or reset.";
-    speak("Voice commands on. Say start, repeat, answer, next, pause, home, or reset.");
+    speak("Voice commands on. Say start, repeat, answer, next, pause, home, or reset. If this fails, check the message on screen for the exact error.");
   } catch(e) {
     voiceCommandsOn = false;
     speak("Voice commands could not start. Android may need microphone permission.");
