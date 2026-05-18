@@ -415,8 +415,9 @@
       </div>
 
       <div class="tiny">
-        Driver safety: the driver should listen only. A passenger should tap controls. Speech starts after a tap because Android browsers require user action before audio can play.
+        Driver safety: the driver should listen only. A passenger should tap controls.
       </div>
+      <div class="audio-status" id="audioStatus">Tap Start once to turn on audio.</div>
     </div>
 
   </div>
@@ -541,6 +542,7 @@ let paused = false;
 let timer = null;
 let voices = [];
 let topicAnnounced = false;
+let audioReady = false;
 
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -642,6 +644,8 @@ function startCurrentQuestion() {
 
   const item = currentQuestions[currentIndex];
   renderQuestion();
+
+  unlockAudio();
 
   const prompt = item.q;
 
@@ -831,21 +835,67 @@ function loadVoices() {
   console.log("Default voice:",voices[defaultIndex]?.name);
 }
 
+
+function unlockAudio() {
+  audioReady = true;
+  const status = document.getElementById("audioStatus");
+  if (status) status.textContent = "Audio ready.";
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+    const freshVoices = window.speechSynthesis.getVoices();
+    if (freshVoices && freshVoices.length) {
+      voices = freshVoices;
+    }
+  }
+}
+
 function speak(text, callback) {
   if (!("speechSynthesis" in window)) {
+    const status = document.getElementById("audioStatus");
+    if (status) status.textContent = "Speech is not supported in this browser.";
     if (callback) callback();
     return;
   }
 
-  cancelSpeech();
+  if (!audioReady) unlockAudio();
+
+  window.speechSynthesis.cancel();
+
   const u = new SpeechSynthesisUtterance(text);
   const selected = Number(document.getElementById("voiceSelect").value);
-  if (voices[selected]) u.voice = voices[selected];
+
+  if (voices[selected]) {
+    u.voice = voices[selected];
+    u.lang = voices[selected].lang || "en-GB";
+  } else {
+    u.lang = "en-GB";
+  }
+
   u.rate = 0.92;
   u.pitch = 1;
   u.volume = 1;
-  u.onend = () => { if (callback) callback(); };
-  window.speechSynthesis.speak(u);
+
+  u.onstart = () => {
+    const status = document.getElementById("audioStatus");
+    if (status) status.textContent = "Speaking...";
+  };
+
+  u.onend = () => {
+    const status = document.getElementById("audioStatus");
+    if (status) status.textContent = "Audio ready.";
+    if (callback) callback();
+  };
+
+  u.onerror = () => {
+    const status = document.getElementById("audioStatus");
+    if (status) status.textContent = "Audio blocked. Tap Start / Repeat Question again.";
+    if (callback) callback();
+  };
+
+  setTimeout(() => {
+    window.speechSynthesis.speak(u);
+  }, 80);
 }
 
 function cancelSpeech() {
@@ -855,6 +905,8 @@ function cancelSpeech() {
 window.addEventListener("load", () => {
   document.getElementById("topicLine").textContent = "Topic: " + triviaDeck.title;
   loadVoices();
+  setTimeout(loadVoices, 500);
+  setTimeout(loadVoices, 1200);
   if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = loadVoices;
 });
 </script>
