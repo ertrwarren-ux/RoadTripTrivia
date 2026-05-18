@@ -410,7 +410,10 @@
         </div>
         <div>
           <label for="voiceSelect">Voice</label>
-          <select id="voiceSelect"></select>
+          <div class="voice-row">
+            <select id="voiceSelect"></select>
+            <button class="small-btn" onclick="forceLoadVoices()">Load Voices</button>
+          </div>
         </div>
       </div>
 
@@ -785,65 +788,71 @@ function resumeLastTrip() {
   }
 }
 
-function loadVoices() {
+function loadVoices(showStatus = false) {
   if (!("speechSynthesis" in window)) return;
 
   voices = window.speechSynthesis.getVoices();
   const select = document.getElementById("voiceSelect");
+  if (!select) return;
+
+  const previousValue = select.value;
   select.innerHTML = "";
 
-  const ua=navigator.userAgent.toLowerCase();
-  const isAndroid=ua.includes("android");
-  const isWindows=ua.includes("windows");
-
-  let preferred=-1;
-
-  const auto=document.createElement("option");
-  auto.value="auto";
-  auto.textContent="Best Available Voice";
+  const auto = document.createElement("option");
+  auto.value = "auto";
+  auto.textContent = "Best Available Voice";
   select.appendChild(auto);
 
-  voices.forEach((v,i)=>{
-    const opt=document.createElement("option");
-    opt.value=String(i);
-    opt.textContent=v.name+" ("+v.lang+")";
+  const ua = navigator.userAgent.toLowerCase();
+  const isAndroid = ua.includes("android");
+  const isWindows = ua.includes("windows");
+
+  let preferred = -1;
+
+  voices.forEach((v, i) => {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = v.name + " (" + v.lang + ")";
     select.appendChild(opt);
 
-    const name=v.name.toLowerCase();
-    const lang=(v.lang||"").toLowerCase();
+    const name = (v.name || "").toLowerCase();
+    const lang = (v.lang || "").toLowerCase();
 
-    if(isWindows && preferred===-1){
-      if(
-         name.includes("microsoft") &&
-         name.includes("female")
-      ){
-        preferred=i;
+    if (isWindows && preferred === -1) {
+      if (name.includes("microsoft") && (name.includes("female") || name.includes("zira") || name.includes("aria"))) {
+        preferred = i;
       }
     }
 
-    if(isAndroid && preferred===-1){
-      if(
-         name.includes("google") ||
-         name.includes("samsung") ||
-         lang==="en-gb"
-      ){
-         preferred=i;
+    if (isAndroid && preferred === -1) {
+      if (name.includes("google") || name.includes("samsung") || lang === "en-gb" || lang === "en-us") {
+        preferred = i;
       }
     }
   });
 
-  select.value=(preferred!==-1)?String(preferred):"auto";
-
-  const status=document.getElementById("audioStatus");
-  if(status){
-      if(isWindows){
-          status.textContent="Windows voice detected";
-      } else if(isAndroid){
-          status.textContent="Android/Samsung voice detected";
-      } else {
-          status.textContent="Using best available voice";
-      }
+  if (previousValue && Array.from(select.options).some(o => o.value === previousValue)) {
+    select.value = previousValue;
+  } else {
+    select.value = preferred !== -1 ? String(preferred) : "auto";
   }
+
+  const status = document.getElementById("audioStatus");
+  if (status && showStatus) {
+    if (voices.length) {
+      status.textContent = "Voices loaded: " + voices.length + ". Selected: " + select.options[select.selectedIndex].textContent;
+    } else {
+      status.textContent = "No voice list yet. Tap Load Voices or Start again.";
+    }
+  }
+}
+
+function forceLoadVoices() {
+  unlockAudio();
+  loadVoices(true);
+  setTimeout(() => loadVoices(true), 250);
+  setTimeout(() => loadVoices(true), 750);
+  setTimeout(() => loadVoices(true), 1500);
 }
 
 function unlockAudio() {
@@ -857,6 +866,9 @@ function unlockAudio() {
     if (freshVoices && freshVoices.length) {
       voices = freshVoices;
     }
+    setTimeout(() => loadVoices(false), 100);
+    setTimeout(() => loadVoices(false), 500);
+    setTimeout(() => loadVoices(false), 1200);
   }
 }
 
@@ -915,10 +927,14 @@ function cancelSpeech() {
 
 window.addEventListener("load", () => {
   document.getElementById("topicLine").textContent = "Topic: " + triviaDeck.title;
-  loadVoices();
-  setTimeout(loadVoices, 500);
-  setTimeout(loadVoices, 1200);
-  if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices(false);
+  setTimeout(() => loadVoices(false), 500);
+  setTimeout(() => loadVoices(false), 1200);
+  setTimeout(() => loadVoices(true), 2200);
+
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.onvoiceschanged = () => loadVoices(true);
+  }
 
   document.getElementById("voiceSelect").addEventListener("change", () => {
     const select = document.getElementById("voiceSelect");
