@@ -715,7 +715,7 @@ function nextQuestion() {
     startCurrentQuestion();
   } else {
     document.getElementById("questionText").textContent = "Pack complete.";
-    document.getElementById("countdownText").textContent = "Final score: " + score + " out of " + currentQuestions.length + ". Choose Home for another pack, or Reset to start over.";
+    document.getElementById("countdownText").textContent = "Final score: " + score + " out of " + currentQuestions.length + ". Choose Home for another pack.";
     document.getElementById("answerText").style.display = "none";
     document.getElementById("bonusText").style.display = "none";
     speak("Pack complete. Final score is " + score + " out of " + currentQuestions.length + ".");
