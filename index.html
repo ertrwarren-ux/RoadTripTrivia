@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Road Trip Trivia Engine - Android Phone Edition</title>
+<title>Road Trip Trivia Engine - Pixel 8 Compact Edition</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <style>
   :root {
@@ -36,9 +36,10 @@
     overscroll-behavior: none;
   }
 
+  /* Pixel 8 compact phone frame: about 393 CSS pixels wide */
   .app {
     width: 100%;
-    max-width: 520px;
+    max-width: 393px;
     margin: 0 auto;
     min-height: 100vh;
     padding: 8px;
@@ -46,46 +47,41 @@
 
   .panel {
     background: rgba(17, 24, 39, 0.96);
-    border: 2px solid rgba(250, 204, 21, 0.35);
+    border: 1px solid rgba(250, 204, 21, 0.35);
     border-radius: 18px;
     padding: 10px;
-    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.35);
   }
 
   .topline {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 8px;
+    gap: 8px;
+    margin-bottom: 6px;
   }
 
   h1 {
     margin: 0;
-    font-size: clamp(19px, 4.8vw, 28px);
-    line-height: 0.95;
+    font-size: clamp(25px, 7vw, 34px);
+    line-height: 0.98;
     color: var(--accent);
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
   }
 
   .tagline {
     color: var(--muted);
-    font-size: clamp(12px, 3vw, 16px);
-    margin: 6px 0 14px;
+    font-size: 13px;
+    margin: 4px 0 9px;
   }
 
-  .screen {
-    display: none;
-  }
-
-  .screen.active {
-    display: block;
-  }
+  .screen { display: none; }
+  .screen.active { display: block; }
 
   .menu-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 8px;
   }
 
   .mode-btn {
@@ -94,32 +90,32 @@
     color: #06111f;
     background: var(--accent);
     border: none;
-    border-radius: 22px;
-    padding: 13px 14px;
+    border-radius: 16px;
+    padding: 12px;
     min-height: 76px;
     cursor: pointer;
-    box-shadow: 0 8px 0 rgba(0,0,0,0.35);
+    box-shadow: 0 5px 0 rgba(0,0,0,0.35);
   }
 
   .mode-btn:active {
-    transform: translateY(3px);
-    box-shadow: 0 5px 0 rgba(0,0,0,0.35);
+    transform: translateY(2px);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.35);
   }
 
   .mode-title {
     font-weight: 900;
-    font-size: clamp(19px, 4.8vw, 28px);
-    line-height: 1;
+    font-size: clamp(19px, 5.2vw, 24px);
+    line-height: 1.02;
   }
 
   .mode-desc {
-    margin-top: 8px;
-    font-size: clamp(13px, 3.4vw, 16px);
+    margin-top: 5px;
+    font-size: 14px;
     font-weight: 700;
   }
 
   .mode-small {
-    margin-top: 5px;
+    margin-top: 3px;
     font-size: 12px;
     opacity: 0.85;
   }
@@ -132,18 +128,18 @@
   .episode-select {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 7px;
+    margin-top: 8px;
   }
 
   .episode-btn {
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: 14px;
     background: #020617;
     color: var(--text);
-    padding: 10px;
+    padding: 10px 11px;
     text-align: left;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     cursor: pointer;
   }
@@ -152,157 +148,172 @@
     display: block;
     color: var(--muted);
     font-size: 12px;
-    margin-top: 4px;
+    margin-top: 3px;
     font-weight: 500;
   }
 
   .status-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin: 8px 0 12px;
+    gap: 5px;
+    margin: 6px 0 8px;
   }
 
   .pill {
     background: #020617;
     border: 1px solid var(--line);
     border-radius: 999px;
-    padding: 10px 12px;
+    padding: 7px 8px;
     color: var(--muted);
-    font-size: 14px;
+    font-size: 11px;
     text-align: center;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .card {
     background: var(--card);
     border: 1px solid var(--line);
-    border-radius: 18px;
+    border-radius: 17px;
     padding: 12px;
     min-height: 210px;
   }
 
   .episode-line {
     color: var(--blue);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .question {
-    font-size: clamp(22px, 6vw, 34px);
-    line-height: 1.12;
+    font-size: clamp(21px, 6vw, 27px);
+    line-height: 1.14;
     font-weight: 900;
-    margin: 8px 0 16px;
+    margin: 6px 0 11px;
   }
 
   .countdown {
-    min-height: 34px;
-    font-size: clamp(16px, 4vw, 22px);
+    min-height: 24px;
+    font-size: clamp(16px, 4.3vw, 20px);
     color: var(--accent);
     font-weight: 800;
-    margin-top: 10px;
+    margin-top: 7px;
   }
 
   .answer {
     display: none;
-    font-size: clamp(20px, 5vw, 30px);
+    font-size: clamp(19px, 5.4vw, 25px);
     color: var(--green);
     font-weight: 900;
-    margin-top: 18px;
+    margin-top: 12px;
     line-height: 1.15;
   }
 
   .bonus {
     display: none;
-    font-size: clamp(14px, 3.5vw, 18px);
+    font-size: clamp(14px, 3.8vw, 18px);
     color: var(--muted);
-    margin-top: 12px;
-    line-height: 1.35;
+    margin-top: 8px;
+    line-height: 1.3;
   }
 
   .controls {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 12px;
+    gap: 7px;
+    margin-top: 8px;
   }
 
   .control-btn {
     border: none;
-    border-radius: 20px;
-    min-height: 52px;
-    padding: 8px;
-    font-size: clamp(16px, 4.2vw, 22px);
+    border-radius: 15px;
+    min-height: 50px;
+    padding: 9px;
+    font-size: clamp(16px, 4.5vw, 20px);
     font-weight: 900;
     color: #06111f;
     background: var(--accent);
     cursor: pointer;
   }
 
-  .control-btn.full {
-    grid-column: span 2;
-  }
+  .control-btn.full { grid-column: span 2; }
 
   .settings {
-    margin-top: 12px;
+    margin-top: 8px;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 7px;
   }
 
   label {
     display: block;
     color: var(--muted);
-    margin-bottom: 5px;
-    font-size: 14px;
+    margin-bottom: 3px;
+    font-size: 11px;
   }
 
   select, input {
     width: 100%;
-    padding: 8px;
-    border-radius: 14px;
+    padding: 10px;
+    border-radius: 11px;
     background: #020617;
     color: var(--text);
     border: 1px solid var(--line);
-    font-size: 18px;
+    font-size: 14px;
   }
 
   .note {
     color: var(--muted);
-    font-size: 14px;
-    line-height: 1.35;
-    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.3;
+    margin-top: 8px;
   }
 
   .tiny {
     color: #94a3b8;
-    font-size: 12px;
-    line-height: 1.35;
-    margin-top: 10px;
+    font-size: 10.5px;
+    line-height: 1.3;
+    margin-top: 7px;
   }
 
   .back-btn {
     border: 1px solid var(--line);
     background: #020617;
     color: var(--text);
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 16px;
+    border-radius: 11px;
+    padding: 9px 10px;
+    font-size: 13px;
     font-weight: 800;
     cursor: pointer;
+    flex: 0 0 auto;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  @media (max-width: 360px) {
+    .app { padding: 6px; }
+    .panel { padding: 8px; border-radius: 16px; }
+    .mode-btn { min-height: 70px; padding: 10px; }
+    .mode-title { font-size: 18px; }
+    .mode-desc { font-size: 13px; }
+    .question { font-size: 20px; }
+    .control-btn { min-height: 48px; font-size: 15px; }
   }
 
   @media (orientation: landscape) and (max-height: 520px) {
-    .app { max-width: 1000px; }
-    .panel { padding: 10px; }
-    h1 { font-size: 34px; }
-    .tagline { margin-bottom: 8px; }
+    .app { max-width: 760px; padding: 6px; }
+    .panel { padding: 8px; }
+    h1 { font-size: 24px; }
+    .tagline { margin-bottom: 5px; }
     .menu-grid { grid-template-columns: 1fr 1fr; }
-    .mode-btn { min-height: 92px; padding: 8px; }
-    .card { min-height: 190px; }
-    .question { font-size: 30px; }
-    .control-btn { min-height: 58px; font-size: 22px; }
+    .mode-btn { min-height: 68px; padding: 10px; }
+    .card { min-height: 145px; }
+    .question { font-size: 22px; }
+    .control-btn { min-height: 44px; font-size: 16px; }
   }
 </style>
 </head>
@@ -313,7 +324,8 @@
     <div class="topline">
       <div>
         <h1>Road Trip Trivia</h1>
-        <div class="tagline">Ask. Pause. Reveal. Ride.</div>
+        <div class="tagline">Ask. Guess. Reveal. Score. Next.</div>
+        <div class="topic-line" id="topicLine">Topic: One Piece Season 1</div>
       </div>
       <button class="back-btn" onclick="showScreen('menuScreen')">Home</button>
     </div>
@@ -345,14 +357,12 @@
         </button>
       </div>
 
-      <button class="mode-btn dark" style="margin-top:12px; min-height:86px;" onclick="resumeLastTrip()">
+      <button class="mode-btn dark" style="margin-top:8px; min-height:60px;" onclick="resumeLastTrip()">
         <div class="mode-title">Resume Last Trip</div>
         <div class="mode-small">Return to the last saved question</div>
       </button>
 
-      <div class="note">
-        Android use: open this Google Sites page by voice, then tap Start once. After that, the page reads questions and answers aloud through the phone, Bluetooth speaker, or car audio.
-      </div>
+
     </div>
 
     <div id="episodeScreen" class="screen">
@@ -379,11 +389,11 @@
 
       <div class="controls">
         <button class="control-btn full" onclick="startCurrentQuestion()">Start / Repeat Question</button>
-        <button class="control-btn green" onclick="showAnswer(true)">Answer Now</button>
-        <button class="control-btn blue" onclick="nextQuestion()">Next</button>
+        <button class="control-btn green" onclick="markAnswer(true)">Correct</button>
+        <button class="control-btn red" onclick="markAnswer(false)">Incorrect</button>
+        <button class="control-btn green" onclick="showAnswer(true)">Show Answer</button>
         <button class="control-btn dark" onclick="pauseGame()">Pause</button>
-        <button class="control-btn red" onclick="resetToMenu()">Reset</button>
-        <button class="control-btn full dark" onclick="toggleVoiceCommands()">Voice Commands</button>
+        
       </div>
 
       <div class="settings">
@@ -405,7 +415,7 @@
       </div>
 
       <div class="tiny">
-        Driver safety: the driver should listen only. A passenger can tap controls or turn on Voice Commands. Android requires one tap before the page can use audio or microphone.
+        Driver safety: the driver should listen only. A passenger should tap controls. Speech starts after a tap because Android browsers require user action before audio can play.
       </div>
     </div>
 
@@ -413,6 +423,12 @@
 </div>
 
 <script>
+const triviaDeck = {
+  title: "One Piece Season 1",
+  category: "TV Series",
+  description: "Netflix live-action Season 1 trivia deck"
+};
+
 const episodes = [
   { season: 1, episode: 1, title: "Romance Dawn" },
   { season: 1, episode: 2, title: "The Man in the Straw Hat" },
@@ -524,6 +540,7 @@ let started = false;
 let paused = false;
 let timer = null;
 let voices = [];
+let topicAnnounced = false;
 
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -533,7 +550,7 @@ function showScreen(id) {
 function chooseMode(mode, count) {
   chosenMode = mode;
   chosenCount = count;
-  document.getElementById("chosenModeNote").textContent = modeLabel(mode) + " selected. Choose an episode, or choose mixed episodes at the bottom.";
+  document.getElementById("chosenModeNote").textContent = modeLabel(mode) + " selected for " + triviaDeck.title + ". Choose an episode, or choose mixed episodes at the bottom.";
   buildEpisodeList();
   showScreen("episodeScreen");
   saveState();
@@ -560,9 +577,19 @@ function buildEpisodeList() {
 
   const mixed = document.createElement("button");
   mixed.className = "episode-btn";
-  mixed.innerHTML = "Mixed Season 1 Pack<span>Questions pulled from all eight episodes</span>";
+  mixed.innerHTML = "Mixed " + triviaDeck.title + " Pack<span>Questions pulled from all episodes in this deck</span>";
   mixed.onclick = () => startPack(0, true);
   list.appendChild(mixed);
+}
+
+
+function shuffleArray(array) {
+  const a = array.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function startPack(episodeNumber, mixed) {
@@ -570,21 +597,22 @@ function startPack(episodeNumber, mixed) {
   score = 0;
   currentIndex = 0;
 
-  let source = mixed ? bank.slice() : bank.filter(x => x.e === episodeNumber);
+  let source = mixed ? shuffleArray(bank) : shuffleArray(bank.filter(x => x.e === episodeNumber));
   currentQuestions = source.slice(0, chosenCount);
 
   if (chosenMode === "grand") {
-    currentQuestions = bank.slice(0, Math.min(25, bank.length));
+    currentQuestions = shuffleArray(bank).slice(0, Math.min(25, bank.length));
   }
 
   if (chosenMode === "quick") {
     currentQuestions = source.slice(0, 5);
   }
 
-  if (currentQuestions.length === 0) currentQuestions = bank.slice(0, 5);
+  if (currentQuestions.length === 0) currentQuestions = shuffleArray(bank).slice(0, 5);
 
   started = false;
   paused = false;
+  topicAnnounced = false;
   showScreen("gameScreen");
   renderQuestion();
   saveState();
@@ -602,7 +630,7 @@ function renderQuestion() {
   document.getElementById("countdownText").textContent = "";
   document.getElementById("packPill").textContent = modeLabel(chosenMode);
   document.getElementById("progressPill").textContent = "Question " + (currentIndex + 1) + " of " + currentQuestions.length;
-  document.getElementById("scorePill").textContent = "Score: " + score;
+  document.getElementById("scorePill").textContent = "Score: " + score + " / " + currentQuestions.length;
   document.getElementById("timerPill").textContent = document.getElementById("revealMode").value === "auto" ? "Auto answer" : "Manual answer";
   saveState();
 }
@@ -611,9 +639,12 @@ function startCurrentQuestion() {
   started = true;
   paused = false;
   clearInterval(timer);
+
   const item = currentQuestions[currentIndex];
-  const prompt = "Road Trip Trivia. " + document.getElementById("episodeLine").textContent + ". Question " + (currentIndex + 1) + ". " + item.q;
   renderQuestion();
+
+  const prompt = item.q;
+
   speak(prompt, () => {
     if (document.getElementById("revealMode").value === "auto") beginCountdown();
     else document.getElementById("countdownText").textContent = "Say your answer out loud. Press Answer Now when ready.";
@@ -634,8 +665,7 @@ function beginCountdown() {
       document.getElementById("countdownText").textContent = "Answer in " + seconds + " seconds.";
     } else {
       clearInterval(timer);
-      document.getElementById("countdownText").textContent = "Answer coming now.";
-      speak("Answer coming now.", () => showAnswer(false));
+      showAnswer(false);
     }
   }, 1000);
 }
@@ -658,6 +688,21 @@ function showAnswer(manual) {
   speak("The correct answer is " + item.a + (item.b ? " Bonus. " + item.b : ""));
 }
 
+
+function markAnswer(correct) {
+  clearInterval(timer);
+  cancelSpeech();
+
+  if (!currentQuestions.length) return;
+
+  if (correct) {
+    score++;
+    document.getElementById("scorePill").textContent = "Score: " + score + " / " + currentQuestions.length;
+  }
+
+  nextQuestion();
+}
+
 function nextQuestion() {
   clearInterval(timer);
   cancelSpeech();
@@ -670,12 +715,10 @@ function nextQuestion() {
     startCurrentQuestion();
   } else {
     document.getElementById("questionText").textContent = "Pack complete.";
-    document.getElementById("countdownText").textContent = "Returning to main menu.";
+    document.getElementById("countdownText").textContent = "Final score: " + score + " out of " + currentQuestions.length + ". Choose Home for another pack, or Reset to start over.";
     document.getElementById("answerText").style.display = "none";
     document.getElementById("bonusText").style.display = "none";
-    speak("Pack complete. Nice work, crew. Returning to the main menu.", () => {
-      resetToMenu();
-    });
+    speak("Pack complete. Final score is " + score + " out of " + currentQuestions.length + ".");
   }
   saveState();
 }
@@ -703,7 +746,7 @@ function resetToMenu() {
 
 function saveState() {
   const state = {
-    chosenMode, chosenCount, activeEpisode, currentQuestions, currentIndex, score
+    chosenMode, chosenCount, activeEpisode, currentQuestions, currentIndex, score, topicAnnounced
   };
   localStorage.setItem("rtt_android_state_v1", JSON.stringify(state));
 }
@@ -723,6 +766,7 @@ function resumeLastTrip() {
     currentQuestions = state.currentQuestions || [];
     currentIndex = state.currentIndex || 0;
     score = state.score || 0;
+    topicAnnounced = state.topicAnnounced || false;
 
     if (!currentQuestions.length) {
       speak("No saved questions found. Choose a pack to begin.");
@@ -731,107 +775,60 @@ function resumeLastTrip() {
 
     showScreen("gameScreen");
     renderQuestion();
-    speak("Resuming last trip. Press Start or Repeat Question when ready.");
+    speak("Resuming last trip.");
   } catch(e) {
     speak("Saved trip could not be loaded. Choose a new pack.");
   }
 }
 
-
-let recognition = null;
-let voiceCommandsOn = false;
-
-function toggleVoiceCommands() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    speak("Voice commands are not supported in this browser. Try Chrome on Android.");
-    return;
-  }
-
-  if (voiceCommandsOn) {
-    voiceCommandsOn = false;
-    if (recognition) recognition.stop();
-    document.getElementById("countdownText").textContent = "Voice commands off.";
-    speak("Voice commands off.");
-    return;
-  }
-
-  recognition = new SpeechRecognition();
-  recognition.lang = "en-US";
-  recognition.continuous = true;
-  recognition.interimResults = false;
-
-  recognition.onresult = function(event) {
-    const last = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
-    handleVoiceCommand(last);
-  };
-
-  recognition.onerror = function(event) {
-    document.getElementById("countdownText").textContent = "Voice command error. Tap Voice Commands to restart.";
-  };
-
-  recognition.onend = function() {
-    if (voiceCommandsOn) {
-      try { recognition.start(); } catch(e) {}
-    }
-  };
-
-  voiceCommandsOn = true;
-  try {
-    recognition.start();
-    document.getElementById("countdownText").textContent = "Voice commands on. Say start, repeat, answer, next, pause, home, or reset.";
-    speak("Voice commands on. Say start, repeat, answer, next, pause, home, or reset.");
-  } catch(e) {
-    voiceCommandsOn = false;
-    speak("Voice commands could not start. Android may need microphone permission.");
-  }
-}
-
-function handleVoiceCommand(command) {
-  if (command.includes("start") || command.includes("repeat")) {
-    startCurrentQuestion();
-    return;
-  }
-
-  if (command.includes("answer")) {
-    showAnswer(true);
-    return;
-  }
-
-  if (command.includes("next")) {
-    nextQuestion();
-    return;
-  }
-
-  if (command.includes("pause") || command.includes("stop")) {
-    pauseGame();
-    return;
-  }
-
-  if (command.includes("home") || command.includes("menu")) {
-    resetToMenu();
-    return;
-  }
-
-  if (command.includes("reset")) {
-    resetToMenu();
-    return;
-  }
-}
-
-
 function loadVoices() {
   if (!("speechSynthesis" in window)) return;
+
   voices = window.speechSynthesis.getVoices();
   const select = document.getElementById("voiceSelect");
   select.innerHTML = "";
+
+  let defaultIndex = -1;
+
   voices.forEach((v, i) => {
     const opt = document.createElement("option");
     opt.value = i;
     opt.textContent = v.name + " (" + v.lang + ")";
     select.appendChild(opt);
+
+    // exact preference order
+    if (
+      v.name === "Google UK English Female"
+    ) {
+      defaultIndex = i;
+    }
   });
+
+  // fallback 1: any female en-GB voice
+  if(defaultIndex===-1){
+      voices.forEach((v,i)=>{
+          const n=v.name.toLowerCase();
+          if(v.lang==="en-GB" && n.includes("female")){
+              defaultIndex=i;
+          }
+      });
+  }
+
+  // fallback 2: any UK voice
+  if(defaultIndex===-1){
+      voices.forEach((v,i)=>{
+          if(v.lang==="en-GB"){
+              defaultIndex=i;
+          }
+      });
+  }
+
+  // fallback 3: first voice
+  if(defaultIndex===-1) defaultIndex=0;
+
+  select.value=String(defaultIndex);
+
+  console.log("Default voice:",voices[defaultIndex]?.name);
 }
 
 function speak(text, callback) {
@@ -856,6 +853,7 @@ function cancelSpeech() {
 }
 
 window.addEventListener("load", () => {
+  document.getElementById("topicLine").textContent = "Topic: " + triviaDeck.title;
   loadVoices();
   if ("speechSynthesis" in window) window.speechSynthesis.onvoiceschanged = loadVoices;
 });
